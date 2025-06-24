@@ -1,5 +1,6 @@
 import plotly.express as px
 import torch
+import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 
@@ -10,6 +11,26 @@ train_dataset = torchvision.datasets.MNIST(root='./data',
                                                transforms.ToTensor(),
                                                transforms.Normalize(mean=(0.1307,), std=(0.3081,))]),
                                            download=True)
+
+test_dataset = torchvision.datasets.MNIST(root='./data',
+                                          train=False,
+                                          transform=transforms.Compose([
+                                              transforms.Resize((32, 32)),
+                                              transforms.ToTensor(),
+                                              transforms.Normalize(mean=(0.1325,), std=(0.3105,))]),
+                                          download=True)
+
+batch_size = 64
+
+train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
+                                           batch_size=batch_size,
+                                           shuffle=True)
+
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
+                                          batch_size=batch_size,
+                                          shuffle=True)
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def show_image(img_tensor, mean=0.1307, std=0.3081):
@@ -41,8 +62,28 @@ def show_image(img_tensor, mean=0.1307, std=0.3081):
 print("torch")
 show_image(train_dataset[0][0])
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+class LeNet5(nn.Module):
+    def __init__(self, num_classes):
+        super(LeNet5, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
+            nn.BatchNorm2d(6),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(6, 16, kernel_size=5, stride=1, padding=0),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+        self.fc = nn.Linear(400, 120)
+        self.relu = nn.ReLU()
+        self.fc1 = nn.Linear(120, 84)
+        self.relu1 = nn.ReLU()
+        self.fc2 = nn.Linear(84, num_classes)
+
+    # Press the green button in the gutter to run the script.
+    if __name__ == '__main__':
+        print('PyCharm')
+
+    # See PyCharm help at https://www.jetbrains.com/help/pycharm/
