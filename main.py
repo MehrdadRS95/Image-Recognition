@@ -21,7 +21,8 @@ test_dataset = torchvision.datasets.MNIST(root='./data',
                                           download=True)
 
 batch_size = 64
-
+num_classes = 10
+learning_rate = 0.01
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                            batch_size=batch_size,
                                            shuffle=True)
@@ -82,8 +83,35 @@ class LeNet5(nn.Module):
         self.relu1 = nn.ReLU()
         self.fc2 = nn.Linear(84, num_classes)
 
-    # Press the green button in the gutter to run the script.
-    if __name__ == '__main__':
-        print('PyCharm')
+    def forward(self, x):
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = out.reshape(out.size(0), -1)
+        out = self.fc1(out)
+        out = self.relu(out)
+        out = self.fc2(out)
+        out = self.relu1(out)
+        out = self.fc2(out)
+
+        return out
+
+
+model = LeNet5(num_classes).to(device)
+# setting the loss function
+cost = nn.CrossEntropyLoss()
+
+# setting the optimizer with the model parameters and learning rate
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+# Press the green button in the gutter to run the script.
+
+# this is defined to print how many steps are remaining when training
+total_step = len(train_loader)
+num_epochs = 10
+
+for epoch in range (num_epochs):
+    
+
+if __name__ == '__main__':
+    print('PyCharm')
 
     # See PyCharm help at https://www.jetbrains.com/help/pycharm/
