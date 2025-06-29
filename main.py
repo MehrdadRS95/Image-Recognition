@@ -108,10 +108,21 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 total_step = len(train_loader)
 num_epochs = 10
 
-for epoch in range (num_epochs):
-    
+for epoch in range(num_epochs):
+    for i, (images, labels) in enumerate(train_loader):
+        images = images.to(device)
+        labels = labels.to(device)
+        outputs = model(images)
+        loss = cost(outputs, labels)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        if (i + 1) % 400 == 0:
+            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step,
+                                                                     loss.item()))
 
-if __name__ == '__main__':
-    print('PyCharm')
+#
+# if __name__ == '__main__':
+#     print('PyCharm')
 
-    # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# See PyCharm help at https://www.jetbrains.com/help/pycharm/
