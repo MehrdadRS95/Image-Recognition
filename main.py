@@ -87,12 +87,11 @@ class LeNet5(nn.Module):
         out = self.layer1(x)
         out = self.layer2(out)
         out = out.reshape(out.size(0), -1)
-        out = self.fc1(out)
+        out = self.fc(out)
         out = self.relu(out)
-        out = self.fc2(out)
+        out = self.fc1(out)
         out = self.relu1(out)
         out = self.fc2(out)
-
         return out
 
 
@@ -121,7 +120,23 @@ for epoch in range(num_epochs):
             print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step,
                                                                      loss.item()))
 
-#
+model.eval()
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for images, labels in test_loader:
+        images = images.to(device)
+        labels = labels.to(device)
+
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    accuracy = 100 * correct / total
+
+print("ACCURACY IS", accuracy)
+
 # if __name__ == '__main__':
 #     print('PyCharm')
 
