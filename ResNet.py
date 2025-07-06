@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import torch.nn as nn
 from torch.utils.data import SubsetRandomSampler
 from torchvision import datasets
 from torchvision import transforms
@@ -76,3 +77,28 @@ train_loader, valid_loader = data_loader(data_dir='./data',
 test_loader = data_loader(data_dir='./data',
                           batch_size=64,
                           test=True)
+
+
+class ResidualBlock(nn.module):
+    def __init__(self, in_channels, out_channels, stride=1, downsample=None):
+        super(ResidualBlock, self).__init()
+        self.conv1 = nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
+                                   nn.BatchNorm2d(out_channels),
+                                   nn.ReLU())
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(out_channels))
+        self.downsample = downsample
+        self.relu = nn.ReLU()
+        self.out_channel = out_channels
+
+    def forward (self, x):
+        residual = x
+        out = self.conv1(x)
+        out = self.conv2(x)
+        if self.downsample:
+            residual = self.downsample(x)
+        out += residual
+        out = self.relu(out)
+
+        return out
